@@ -1,0 +1,83 @@
+// ============================================================================
+// Dash Standard Library - File System Module
+// Author: htcdevk0
+// License: GNU GPL v3
+//
+// Minimal file I/O abstraction over C stdio.
+// Provides basic file operations: open, read, write, seek, and utilities.
+// ============================================================================
+
+// ===== C BINDINGS =====
+private extern("c") fopen(path: string, mode: string): uint;
+private extern("c") fclose(file: uint): int;
+private extern("c") fread(ptr: uint, size: uint, count: uint, file: uint): uint;
+private extern("c") fwrite(ptr: string, size: uint, count: uint, file: uint): uint;
+private extern("c") fseek(file: uint, offset: int, origin: int): int;
+private extern("c") ftell(file: uint): int;
+private extern("c") malloc(size: uint): uint;
+private extern("c") free(ptr: uint): void;
+
+import [std/str];
+
+// ===== FILE POSITION CONSTANTS =====
+export let SEEK_SET: int = 0;
+export let SEEK_CUR: int = 1;
+export let SEEK_END: int = 2;
+
+// ===== FILE OPEN / CLOSE =====
+export fn open(path: string, mode: string): uint {
+    return fopen(path, mode);
+}
+
+export fn close(file: uint): void {
+    fclose(file);
+}
+
+// ===== FILE POSITION =====
+export fn seek(file: uint, offset: int, origin: int): void {
+    fseek(file, offset, origin);
+}
+
+export fn tell(file: uint): int {
+    return ftell(file);
+}
+
+// ===== READ =====
+export fn read(file: uint, size: uint): uint {
+    let buffer: uint = malloc(size);
+
+    if (buffer == 0) {
+        return 0;
+    }
+
+    fread(buffer, 1, size, file);
+    return buffer;
+}
+
+// ===== WRITE =====
+export fn write(file: uint, data: string): void {
+    fwrite(data, 1, str.len(data), file);
+}
+
+// ===== UTIL =====
+export fn exists(path: string): bool {
+    let f: uint = fopen(path, "r");
+    if (f == 0) {
+        return false;
+    }
+    fclose(f);
+    return true;
+}
+
+export fn size(path: string): int {
+    let f: uint = fopen(path, "rb");
+    if (f == 0) {
+        return -1;
+    }
+
+    fseek(f, 0, SEEK_END);
+    let s: int = ftell(f);
+
+    fclose(f);
+    return s;
+}

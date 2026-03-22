@@ -1,0 +1,10 @@
+private extern("c") system(command: string): int;
+private extern("c") exit(code: int): void;
+
+export fn c_system(command: string): int {
+    return system(command);
+}
+
+export fn c_exit(code: int): void {
+    exit(code);
+}

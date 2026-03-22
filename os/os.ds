@@ -1,0 +1,42 @@
+// ============================================================================
+// Dash Standard Library - OS Module
+// Author: htcdevk0
+// License: GNU GPL v3
+//
+// Minimal OS interaction layer.
+// Provides command execution, process termination, and target detection.
+// ============================================================================
+
+// ===== C BINDINGS =====
+private extern c_system(command: string): int;
+private extern c_exit(code: int): void;
+
+import [std/str];
+import "../C_IMPL/c_impl";
+
+// ===== PROCESS =====
+export fn execute(command: string): int {
+    return c_system(command);
+}
+
+export fn quit(code: int): void {
+    c_exit(code);
+}
+
+// ===== TARGET =====
+export fn auto(): bool {
+    return !env<"target", "unknown">;
+}
+
+// Prefer using env<"target", "<os>">.
+// Returns true if the current runtime target matches the specified operating system.
+// However, os.eq can be used to avoid code pollution.
+
+export fn eq(_os: string): int {
+    if (str.eq(_os, "windows")) return env<"target", "windows">;
+    if (str.eq(_os, "linux")) return env<"target", "linux">;
+    if (str.eq(_os, "mac")) return env<"target", "mac">;
+    if (str.eq(_os, "bsd")) return env<"target", "bsd">;
+    if (str.eq(_os, "unknown")) return env<"target", "unknown">;
+    return 0;
+}

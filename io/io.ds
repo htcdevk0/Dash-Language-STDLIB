@@ -1,0 +1,134 @@
+// ============================================================================
+// Dash Standard Library - IO Module
+// Author: htcdevk0
+// License: GNU GPL v3
+//
+// Formatted output and basic input utilities built over C stdio.
+// Supports variadic printing and typed input scanning.
+// ============================================================================
+
+// ===== C BINDINGS =====
+private extern("c") printf(format: string, args: ...): int;
+private extern("c") sprintf(buffer: string, format: string, args: ...): int;
+private extern("c") scanf(format: string, args: ...): int;
+private extern("c") malloc(size: uint): string;
+private extern("c") free(ptr: string): void;
+private extern("c") realloc(ptr: string, size: uint): string;
+
+// ===== VERSION =====
+export let __DASH_STDIO_VERSION: string = "2.1.0LL";
+
+// ===== INTERNAL CONSTANTS =====
+export const __SINP_STRING_BUFFER: uint = 1024;
+
+// ===== INTERNAL BUFFER HELPERS =====
+export fn __append(buf: string, offset: int, fmt: string, v: ...): int {
+    let idx: int = v::size - 1;
+    return offset + sprintf(buf + offset, fmt, exdt<v[idx]>);
+}
+
+export fn __append_str(buf: string, offset: int, s: string): int {
+    return offset + sprintf(buf + offset, "%s", s);
+}
+
+// ===== INTERNAL INPUT HELPERS =====
+export fn __scan_value(fmt: string, v: ...): void {
+    let idx: int = v::size - 1;
+    scanf(fmt, v[idx]);
+}
+
+export fn __scan_bool(v: ...): void {
+    let idx: int = v::size - 1;
+    let ref: ... = v[idx];
+    let tmp: int;
+
+    scanf("%d", &tmp);
+
+    if (tmp != 0) {
+        *ref = true;
+    } else {
+        *ref = false;
+    }
+}
+
+export fn __scan_string(v: ...): void {
+    let idx: int = v::size - 1;
+    let ref: ... = v[idx];
+
+    let buf: string = malloc(__SINP_STRING_BUFFER);
+    scanf("%1023s", buf);
+
+    *ref = buf;
+}
+
+export fn __scan_single(v: ...): void {
+    let idx: int = v::size - 1;
+    let item: ... = v[idx];
+
+    if (is<int, item>) {
+        __scan_value("%d", item);
+    } else if (is<uint, item>) {
+        __scan_value("%lu", item);
+    } else if (is<double, item>) {
+        __scan_value("%lf", item);
+    } else if (is<float, item>) {
+        __scan_value("%f", item);
+    } else if (is<bool, item>) {
+        __scan_bool(item);
+    } else if (is<char, item>) {
+        __scan_value("%c", item);
+    } else if (is<string, item>) {
+        __scan_string(item);
+    }
+}
+
+// ===== OUTPUT =====
+export fn print(args: ...): void {
+    for (let i: int = 0; i < (args); i++) {
+        let v: ... = args[i];
+
+        if (is<string, v>) {
+            printf("%s", exdt<v>);
+        }
+        else if (is<int, v>) {
+            printf("%d", int<v>);
+        }
+        else if (is<double, v>) {
+            printf("%f", exdt<v>);
+        }
+        else if (is<float, v>) {
+            printf("%.2f", exdt<v>);
+        }
+        else if (is<bool, v>) {
+            if (exdt<v>) printf("true"); else printf("false");
+        }
+        else if (is<char, v>) {
+            printf("%c", exdt<v>);
+        }
+        else if (is<uint, v>) {
+            printf("%lu", exdt<v>);
+        }
+    }
+}
+
+export fn println(args: ...): void {
+    print((args));
+    printf("\n");
+}
+
+export fn dsprintf(type: string, args: ...): void {
+    for (let i: int = 0; i < (args); i++) {
+        printf(type, exdt<args[i]>);
+    }
+}
+
+export fn endln(): string {
+    return "\n";
+}
+
+// ===== INPUT =====
+export fn sinp(args: ...): void {
+    for (let i: int = 0; i < args::size; i++) {
+        __scan_single(args[i]);
+    }
+}

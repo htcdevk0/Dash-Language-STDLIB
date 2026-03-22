@@ -1,0 +1,88 @@
+// ============================================================================
+// Dash Standard Library - String Module
+// Author: htcdevk0
+// License: GNU GPL v3
+//
+// Basic string utilities built over C string functions.
+// Provides comparison, length, prefix/suffix checks, and search operations.
+// ============================================================================
+
+// ===== C BINDINGS =====
+private extern("c") strcmp(a: string, b: string): int;
+private extern("c") strlen(s: string): int;
+private extern("c") strncmp(a: string, b: string, n: int): int;
+private extern("c") strchr(s: string, c: int): string;
+private extern("c") strstr(haystack: string, needle: string): string;
+
+// ===== COMPARISON =====
+export fn cmp(a: string, b: string): int {
+    return strcmp(a, b);
+}
+
+export fn eq(a: string, b: string): bool {
+    return strcmp(a, b) == 0;
+}
+
+export fn ne(a: string, b: string): bool {
+    return strcmp(a, b) != 0;
+}
+
+export fn lt(a: string, b: string): bool {
+    return strcmp(a, b) < 0;
+}
+
+export fn gt(a: string, b: string): bool {
+    return strcmp(a, b) > 0;
+}
+
+// ===== LENGTH =====
+export fn len(s: string): int {
+    return strlen(s);
+}
+
+// ===== PREFIX / SUFFIX =====
+export fn starts_with(s: string, prefix: string): bool {
+    let plen: int = strlen(prefix);
+    return strncmp(s, prefix, plen) == 0;
+}
+
+export fn ends_with(s: string, suffix: string): bool {
+    let slen: int = strlen(s);
+    let tlen: int = strlen(suffix);
+
+    if (tlen > slen) {
+        return false;
+    }
+
+    return strncmp(s + (slen - tlen), suffix, tlen) == 0;
+}
+
+// ===== SEARCH =====
+export fn contains(s: string, sub: string): bool {
+    return strstr(s, sub) != 0;
+}
+
+export fn find(s: string, sub: string): int {
+    let ptr: string = strstr(s, sub);
+
+    if (ptr == 0) {
+        return -1;
+    }
+
+    return ptr - s;
+}
+
+export fn find_char(s: string, c: int): int {
+    let ptr: string = strchr(s, c);
+
+    if (ptr == 0) {
+        return -1;
+    }
+
+    return ptr - s;
+}
+
+// ===== UTIL =====
+export fn is_empty(s: string): bool {
+    return strlen(s) == 0;
+}

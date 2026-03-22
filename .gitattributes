@@ -1,0 +1,27 @@
+# -------------------------
+# Language
+# -------------------------
+*.ds linguist-language=Dash
+
+# -------------------------
+# Ignore build artifacts
+# -------------------------
+build/** linguist-generated
+*.o linguist-generated
+*.so linguist-generated
+
+# -------------------------
+# Shell scripts
+# -------------------------
+*.sh linguist-language=Shell
+
+# -------------------------
+# C files (for c_impl)
+# -------------------------
+*.c linguist-language=C
+*.h linguist-language=C
+
+# -------------------------
+# Normalize line endings
+# -------------------------
+* text=auto
